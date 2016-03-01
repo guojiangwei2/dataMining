@@ -88,6 +88,7 @@ def computeNearestNeighbor(username, users):
     distances.sort()
     return distances
 
+
 def recommend(username, users):
     """Give list of recommendations"""
     # first find nearest neighbor
