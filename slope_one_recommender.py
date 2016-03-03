@@ -63,7 +63,7 @@ class recommender():
                     recommendations[diffItem] += (diffRatings[userItem] + userRating) * freq
                     # keep a running sum of the frequency of diffitem
                     frequencies[diffItem] += freq
-        recommendations =  [(k, v / frequencies[k]) for (k, v) in recommendations.items()]
+        recommendations =  [(k, round(v / frequencies[k], 1)) for (k, v) in recommendations.items()]
         # finally sort and return
         recommendations.sort(key=lambda artistTuple: artistTuple[1], reverse = True)
         # I am only going to return the first 5 recommendations
@@ -71,6 +71,7 @@ class recommender():
 
 
 if __name__ == '__main__':
-    recommender = recommender(users)
-    recommender.computeDeviations()
-    print recommender.slopeOneRecommendations(new_user['Veronica'])
+    r = recommender(users)
+    r.computeDeviations()
+    Veronica = new_user['Veronica']
+    print r.slopeOneRecommendations(Veronica)
