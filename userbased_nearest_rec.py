@@ -1,7 +1,5 @@
-# Code file for the book Programmer's Guide to Data Mining
-# http://guidetodatamining.com
-# Ron Zacharski
-# Modified by Jeffrey
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 from math import sqrt
 
@@ -25,54 +23,33 @@ users = {"Angelica": {"Blues Traveler": 3.5, "Broken Bells": 2.0, "Norah Jones":
 
 
 def computeDistance(rating1, rating2, r=2):
-    """Computes the Manhattan distance. Both rating1 and rating2 are dictionaries
-       of the form {'The Strokes': 3.0, 'Slightly Stoopid': 2.5}"""
     # r=1: manhattan distance, r=2: euclidean distance
     distance = 0
-    commonRatings = False
-    for key in rating1:
-        if key in rating2:
-            distance += pow(abs(rating1[key] - rating2[key]), r)
-            commonRatings = True
-    if commonRatings:
-        return pow(distance, 1.0 / r)
-    else:
-        return 0 #Indicates no ratings in common
+    commonItems = set(rating1.keys()) & set(rating2.keys())
+    for item in commonItems:
+        distance += pow(abs(rating1[item] - rating2[item]), r)
+    return pow(distance, 1.0 / r) if commonItems else 0
 
 
 def computeNearestNeighbor(username, users):
-    """creates a sorted list of users based on their distance to username"""
-    '''
-    distances = []
-    for user in users:
-        if user != username:
-            distance = computeDistance(users[user], users[username], r=2)
-            distances.append((distance, user))
-    '''
+
     distances = [[computeDistance(users[x], users[username], r=3), x]\
         for x in users if x != username]
-    # sort based on distance -- closest first
     distances.sort()
     return distances
 
 
 def recommend(username, users):
-    """Give list of recommendations"""
+
     recommendations = []
 
     nearest = computeNearestNeighbor(username, users)[0][1]
     neighborRatings = users[nearest]
     userRatings = users[username]
-    '''
-    for artist in neighborRatings:
-        if not artist in userRatings:
-            recommendations.append((artist, neighborRatings[artist]))
-    '''
     recommendations = [[x, neighborRatings[x]] for x in neighborRatings if x not in userRatings]
-    # using the fn sorted for variety - sort is more efficient
-    return sorted(recommendations, key=lambda artistTuple: artistTuple[1], reverse = True)
+
+    return sorted(recommendations, key=lambda artistTuple: artistTuple[1], reverse=True)
 
 
 if __name__ == '__main__':
     print(recommend('Hailey', users))
-    #print(recommend('Chan', users))
