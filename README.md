@@ -20,7 +20,7 @@
  * sparsity and scalability
  * tend to recommend already popular items, bias toward popularity
 
-### classification based on item attribute
+### item based filtering
 * find the appropriate values of the items
 * normalization the variables, as pay attention to scale of diff. attribute
  * (x - min) / range, give a value of 0 to 1
@@ -28,3 +28,13 @@
  * (x - median) / asd, where abslute standard deviation is (∑|x - median| / n)
  * nomarlization is not necessary, it costs times and sometimes reduce the accuracy
 * compute the nearest neighbors
+
+### classfication
+* a classifier is a program that uses an object's attribute to determine what class or group it belongs to.
+ * first try to find a most nearest thing from some labeled objects;
+ * predict the unlabeled one as the class of the nearest one's class
+* convert the scale of the attribute with some functions
+ * compare the standarization, normalization, convert with range value
+ * normalize: (x - mean) / std
+ * standarize: (x - median) / asd, where asd represents absolute standard deviation
+ * convert with range: (x - min) / range, where range equals to (max - min)
