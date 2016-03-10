@@ -38,3 +38,33 @@
  * normalize: (x - mean) / std
  * standarize: (x - median) / asd, where asd represents absolute standard deviation
  * convert with range: (x - min) / range, where range equals to (max - min)
+* evaluate the classifier: train sets and test sets
+ * people never test with the data they used to build the classifier: overly optimistic
+ * devide the data set to training and test sets: the result depends on how we devide the data sets, especially when some types are sparse
+ * 10-fold cross validation: random devide; iterate 10 times; sum up results
+ * level-one-out:
+  * adavntege: use the larget possible info. and deterministic
+  * disadvantege: computational expense and stratification
+ * two way to evaluate the classifier:
+  * percent accuracy
+  * confusion matrix
+ * kappa value = (p(c) - p(r)) / (1 - p(r))
+  * < 0: less than chance performance, 0.01-0.2: slightly good, 0.21-0.4: fair performance
+  * 0.41-0.6: morderate performance, 0.61-0.8:substantially good performance, 0.81-1.0: near perfact performance
+* kNN - k nearest neighbors
+ * duck-like classifier, voting method
+ * discrete class, avoid the misclassification influenced by the outlier
+ * predict numeric value with distance-weighted value:
+  * 3 closest instances, with (distance, value) as (d1, v1), (d2, v2) and (d3, v3)
+  * transfrom distance as f(d) = 1 / d, weight of each value as f(di) / sum(d1, d2, d3)
+  * predict value = ∑(d * weight)
+* algorithms or more data
+  * better algorithm may have a significant improvment of the perfomance, but more data may be more practice and more improvement
+* kNN's application
+ * recommending items at amazone
+ * assessing cousumer credit risks
+ * classifying land cover using image analysis
+ * faces recognication
+ * recognize the gender of people in images
+ * recommending web
+ * recommending vacation packages

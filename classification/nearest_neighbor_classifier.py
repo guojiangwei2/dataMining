@@ -95,3 +95,8 @@ class Classifier:
 
     def classify(self, itemVector):
         return(self.computeNearestNeighbor(itemVector)[0][1][0]) 
+
+
+if __name__ == '__main__':
+    cl = Classifier('/home/ubuntu14/jeffGithub/machine_learning/classification/athletesTrainingSet.data')
+    print cl.classify([73, 160])
