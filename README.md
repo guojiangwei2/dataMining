@@ -71,23 +71,23 @@
  * recognize the gender of people in images
  * recommending web
  * recommending vacation packages
-* Naïve Bayes and Probability Density Functions
- * eager learners(try to build a internal model) VS. lazy learners(just remember and goes through the entire traning data set)
-  * give both probabilistic prediction
-  * more faster than nearest classification
- * prior probility VS. posteriod probility(conditional probility), p(h|D) = p(D|h) * p(h) / p(D)
- * compute probility of each hypothesis and select the hypothesis with maximum probility. maximum posteroiri hypethesis
- * hMAP = argmax(p(h|D)) = argmax(p(D|h) * p(h) / p(D)) = argmax(p(D|h) * p(h))
- * estimating of probilities: p(x|y) = p(x & y) / p(y)
-  * p(x|y) is the estimates of the true probility, so if the true value is very small, sometimes the estimates will be 0
-  * the adjust value may be p(x|y) = nc / n ≈ (nc + m * p) / (n + m), where n is the num of sample, nc is the num of target sample, m is a constant called equivalant of sample size, for example as num of the attribute value, p the prior estimate of probility. there are many methods to determine the m, and often we suppose uniform distrubution of the prior probolity.
- * numberical data
-  * making categories
-  * Gaussian distrubition and probability density function(mean and sample standard diviation)
- * navie means that the events the probilities represent is independend, and we can multiple the probilities together for the joint probilities. we just naviely assuming indenpendence even though we know it is not.
- * advantages and disadvantages
-  * navie bayes needs less training data set, simple to implement and has a good performance
-  * disadvantage is that navie bayes can't learn interactions between features
-  * comparable, kNN is simple to implement, doesn't assumpe any particular structure of the data
-  * disadvantage of kNN is that it needs more trainning data sets and more memory to store the data and poor compute performance
-  * kNN is extremely versatile and used in large fields such as recommendation systems, proteomics and image classification, it's a good choice if have large training data sets
+### Naïve Bayes and Probability Density Functions
+* eager learners(try to build a internal model) VS. lazy learners(just remember and goes through the entire traning data set)
+ * give both probabilistic prediction
+ * more faster than nearest classification
+* prior probility VS. posteriod probility(conditional probility), p(h|D) = p(D|h) * p(h) / p(D)
+* compute probility of each hypothesis and select the hypothesis with maximum probility. maximum posteroiri hypethesis
+* hMAP = argmax(p(h|D)) = argmax(p(D|h) * p(h) / p(D)) = argmax(p(D|h) * p(h))
+* estimating of probilities: p(x|y) = p(x & y) / p(y)
+ * p(x|y) is the estimates of the true probility, so if the true value is very small, sometimes the estimates will be 0
+ * the adjust value may be p(x|y) = nc / n ≈ (nc + m * p) / (n + m), where n is the num of sample, nc is the num of target sample, m is a constant called equivalant of sample size, for example as num of the attribute value, p the prior estimate of probility. there are many methods to determine the m, and often we suppose uniform distrubution of the prior probolity.
+* numberical data
+ * making categories
+ * Gaussian distrubition and probability density function(mean and sample standard diviation)
+* navie means that the events the probilities represent is independend, and we can multiple the probilities together for the joint probilities. we just naviely assuming indenpendence even though we know it is not.
+* advantages and disadvantages
+ * navie bayes needs less training data set, simple to implement and has a good performance
+ * disadvantage is that navie bayes can't learn interactions between features
+ * comparable, kNN is simple to implement, doesn't assumpe any particular structure of the data
+ * disadvantage of kNN is that it needs more trainning data sets and more memory to store the data and poor compute performance
+ * kNN is extremely versatile and used in large fields such as recommendation systems, proteomics and image classification, it's a good choice if have large training data sets
