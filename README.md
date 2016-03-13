@@ -71,6 +71,7 @@
  * recognize the gender of people in images
  * recommending web
  * recommending vacation packages
+
 ### Naïve Bayes and Probability Density Functions
 * eager learners(try to build a internal model) VS. lazy learners(just remember and goes through the entire traning data set)
  * give both probabilistic prediction
