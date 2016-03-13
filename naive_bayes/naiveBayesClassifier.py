@@ -96,8 +96,6 @@ class Classifier:
             totals.setdefault(theRealClass, {})
             totals[theRealClass].setdefault(classifiedAs, 0)
             totals[theRealClass][classifiedAs] += 1
-        # debug
-        print totals
         return totals
  
 

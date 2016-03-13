@@ -92,3 +92,21 @@
  * comparable, kNN is simple to implement, doesn't assumpe any particular structure of the data
  * disadvantage of kNN is that it needs more trainning data sets and more memory to store the data and poor compute performance
  * kNN is extremely versatile and used in large fields such as recommendation systems, proteomics and image classification, it's a good choice if have large training data sets
+
+### classifying unstructured text with bayes
+* example of unstructured data, a twitter, an email, a blogs or newspaper articles.
+* the posible use of text analyzing, what people are say about their products, is the product positively or negatively talked, the marketing effects of a new product or public relationship management.
+* use the occurance of words to classify the text, the training data is called traning corpus.
+ * treating the documents as bag of unsorted words
+ * p(wk|hi) = (nk + 1) / (n + |vocabulary|)
+ * hMAP = argmax(p(h|D) * p(h))
+ * tips: the probility will be very small, since python can't handle the small number, we can fix this using logs, we can add the logs of the probility instead of mulitplying the problitiy.
+ * throwing out fluff words, but do not drop the common words without thinking, in some cases it will hurt the performance
+* sentiment analysis with naive bayes
+
+### clustering - discover the groups
+* unsupervised data mining method
+* 2 way to do the clustering, k-means and hierarchical clustering
+* hierarchical clustering
+ * start with each instance in its own cluster and end as a cluster.
+ * 3 ways to compute the distance between two groups, the single-linkage clustring, complete-linkage clustering and avarage-linkage clustering
