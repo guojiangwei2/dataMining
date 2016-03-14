@@ -96,6 +96,7 @@
 ### classifying unstructured text with bayes
 * example of unstructured data, a twitter, an email, a blogs or newspaper articles.
 * the posible use of text analyzing, what people are say about their products, is the product positively or negatively talked, the marketing effects of a new product or public relationship management.
+* simple method: count the words of positive emotion and negative emotion, choose the larger part.
 * use the occurance of words to classify the text, the training data is called traning corpus.
  * treating the documents as bag of unsorted words
  * p(wk|hi) = (nk + 1) / (n + |vocabulary|)
@@ -103,6 +104,8 @@
  * tips: the probility will be very small, since python can't handle the small number, we can fix this using logs, we can add the logs of the probility instead of mulitplying the problitiy.
  * throwing out fluff words, but do not drop the common words without thinking, in some cases it will hurt the performance
 * sentiment analysis with naive bayes
+ * one example is to determine the polarity of a review of comment
+ * movie review dataset
 
 ### clustering - discover the groups
 * unsupervised data mining method
@@ -110,3 +113,20 @@
 * hierarchical clustering
  * start with each instance in its own cluster and end as a cluster.
  * 3 ways to compute the distance between two groups, the single-linkage clustring, complete-linkage clustering and avarage-linkage clustering
+* k-means clustering
+ * spcify the k as the groups to make. k-means is the most popular clustering algrithm.
+ * random pick k instance as initial center; assign each instance to the nearest center; calculate the means of each cluster and update the centroid; repeat the method 2 - 3 until convergence(then centroid doesn't change much).
+ * say the algrith converge if the instance doesn't change from one cluster to another. the vast majority of this shift occurs in the fist few iterations. this means that the k-means produces good cluster early on and the later iteration produce only minor refinements.
+ * since the later impovement is few, so we can relax the criteria of "no one change from one cluster to another" as "fewer than 1% of the instance shifting from one cluster to another".
+ * k-means is a instance of Expectation Maximization(EM) Algorithm, which is an iterative method between two phases. we start with an initial estimate of some parameter, in the k-means case we start with the estimate of the k centroids. in the expectation phase, we use the estimate to place the point into the expected cluster. in the maximization pharse, we use these expected value to adjuest the estimate of the centroids.
+ * k-means give no gurantee that it will give the global optimum but the local optimun. the cluster result is heavily depend on the initial choice of the centroid.
+ * to determine the quality of cluster, use the sum squared errors(SSE) or scatter.
+ * sometimes the k-means doesn't actully cluster the instances into k clusters that all are none empty. maybe it implecates that the data are prefer to be clustered less than k clusters. but if we really want k none-empty clusters, we may alter the algrith to detect the empty. if one of the centroid if shifting to another cluster, one possible way is to change the centroid to the instance that is furthest from it.
+* k-means++
+ * original k-means randomly select the initial centroids
+ * the k-means++: random select the first centroid; compute the distance of each datapoint and its closest centroid, as dp; in a probility proportional to the dp, random select a datapoint as a new centroid; repeat until select all k centroids
+ * still pick the centroids randomly, but prefer that far from another
+* benifit of k-means
+ * k-means is simple and has fast execution time. it's a great choice in general and also a good choice as first step to explore your data.
+ * k-means doesn't handle outliers well, we can remedy this by identifying and remove the outliers.
+ * the obvious use of hierarchical-clustering is to create a taxonomy or hierarchical from our data. it offers more info. than flat set of clusters. but it's not efficient in execution speed and memory requirement.
