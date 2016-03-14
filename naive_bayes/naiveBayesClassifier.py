@@ -113,18 +113,18 @@ def tenfold(bucketPrefix, dataFormat):
 
     categories = list(results.keys())
     categories.sort()
-    print(   "\n            Classified as: ")
-    header =    "             "
+    print("\n            Classified as: ")
+    header = "             "
     subheader = "               +"
     for category in categories:
         header += "% 10s   " % category
         subheader += "-------+"
-    print (header)
-    print (subheader)
+    print(header)
+    print(subheader)
     total = 0.0
     correct = 0.0
     for category in categories:
-        row = " %10s    |" % category 
+        row = " %10s    |" % category
         for c2 in categories:
             if c2 in results[category]:
                 count = results[category][c2]
