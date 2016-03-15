@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
 from __future__ import print_function
 import os, codecs, math
 
-class BayesText:
+
+class bayesText:
 
     def __init__(self, trainingdir, stopwordlist):
         """This class implements a naive Bayes approach to text
@@ -16,94 +20,79 @@ class BayesText:
         self.vocabulary = {}
         self.prob = {}
         self.totals = {}
-        self.stopwords = {}
-        f = open(stopwordlist)
-        for line in f:
-            self.stopwords[line.strip()] = 1
-        f.close()
+
+        with codecs.open(stopwordlist, 'r', 'iso8859-1') as f:
+            lines = f.readlines()
+            self.stopwords = set([x.strip() for x in lines])
+
         categories = os.listdir(trainingdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         self.categories = [filename for filename in categories
                            if os.path.isdir(trainingdir + filename)]
         print("Counting ...")
         for category in self.categories:
             print('    ' + category)
-            (self.prob[category],
-             self.totals[category]) = self.train(trainingdir, category)
-        # I am going to eliminate any word in the vocabulary
-        # that doesn't occur at least 3 times
-        toDelete = []
-        for word in self.vocabulary:
-            if self.vocabulary[word] < 3:
-                # mark word for deletion
-                # can't delete now because you can't delete
-                # from a list you are currently iterating over
-                toDelete.append(word)
-        # now delete
+            (self.prob[category], self.totals[category]) =\
+            self.train(trainingdir, category)
+
+        # delete the word the appear for less than 3 times
+        toDelete = [word for word in self.vocabulary if self.vocabulary[word] < 3]
         for word in toDelete:
             del self.vocabulary[word]
-        # now compute probabilities
-        vocabLength = len(self.vocabulary)
+
         print("Computing probabilities:")
+        vocabLength = len(self.vocabulary)
         for category in self.categories:
             print('    ' + category)
             denominator = self.totals[category] + vocabLength
             for word in self.vocabulary:
-                if word in self.prob[category]:
-                    count = self.prob[category][word]
-                else:
-                    count = 1
-                self.prob[category][word] = (float(count + 1)
-                                             / denominator)
+                count = self.prob[category].get(word, 0)
+                self.prob[category][word] = (float(count + 1)/ denominator)
         print ("DONE TRAINING\n\n")
-                    
+
 
     def train(self, trainingdir, category):
-        """counts word occurrences for a particular category"""
+
         currentdir = trainingdir + category
         files = os.listdir(currentdir)
-        counts = {}
-        total = 0
+        token_res = []
         for file in files:
-            #print(currentdir + '/' + file)
-            f = codecs.open(currentdir + '/' + file, 'r', 'iso8859-1')
-            for line in f:
-                tokens = line.split()
-                for token in tokens:
-                    # get rid of punctuation and lowercase token
-                    token = token.strip('\'".,?:-')
-                    token = token.lower()
-                    if token != '' and not token in self.stopwords:
-                        self.vocabulary.setdefault(token, 0)
-                        self.vocabulary[token] += 1
-                        counts.setdefault(token, 0)
-                        counts[token] += 1
-                        total += 1
-            f.close()
+            with codecs.open(currentdir + '/' + file, 'r', 'iso8859-1') as f:
+                lines = f.readlines()
+                tokens = [token.strip('\'".,?:-').lower() for line in lines\
+                          for token in line.split()\
+                          if token.strip('\'".,?:-').lower() != ''\
+                          and not token.strip('\'".,?:-').lower() in self.stopwords]
+                token_res.extend(tokens)
+
+        total  = len(token_res)
+        counts = dict([[token, token_res.count(token)] for token in set(token_res)])
+
+        for token, cnt in counts.items():
+            try:
+                self.vocabulary[token] += 1
+            except KeyError:
+                self.vocabulary[token] = 1
+
         return(counts, total)
-                    
-                    
+
+
     def classify(self, filename):
-        results = {}
-        for category in self.categories:
-            results[category] = 0
-        f = codecs.open(filename, 'r', 'iso8859-1')
-        for line in f:
-            tokens = line.split()
-            for token in tokens:
-                #print(token)
-                token = token.strip('\'".,?:-').lower()
-                if token in self.vocabulary:
-                    for category in self.categories:
-                        if self.prob[category][token] == 0:
-                            print("%s %s" % (category, token))
-                        results[category] += math.log(
-                            self.prob[category][token])
-        f.close()
-        results = list(results.items())
-        results.sort(key=lambda tuple: tuple[1], reverse = True)
-        # for debugging I can change this to give me the entire list
+
+        with codecs.open(filename, 'r', 'iso8859-1') as f:
+            lines = f.readlines()
+            token_lst = [token.strip('\'".,?:-').lower()\
+                         for line in lines for token in line.split()\
+                         if token.strip('\'".,?:-').lower() in self.vocabulary]
+
+        results = dict([[c, 0] for c in self.categories])
+        for token in token_lst:
+            for category in self.categories:
+                results[category] += math.log(self.prob[category][token])
+        results = [[c, results[c]] for c in sorted(results, key=results.get, reverse=True)]
+
         return results[0][0]
+
 
     def testCategory(self, directory, category):
         files = os.listdir(directory)
@@ -116,43 +105,46 @@ class BayesText:
                 correct += 1
         return (correct, total)
 
+
     def test(self, testdir):
-        """Test all files in the test directory--that directory is
-        organized into subdirectories--each subdir is a classification
-        category"""
+        """Test all files in the test directory
+        that directory is organized into subdirectories
+        each subdir is a classification category"""
         categories = os.listdir(testdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         categories = [filename for filename in categories if
                       os.path.isdir(testdir + filename)]
         correct = 0
         total = 0
         for category in categories:
             print(".", end="")
-            (catCorrect, catTotal) = self.testCategory(
-                testdir + category + '/', category)
+            new_dir = testdir + category + '/'
+            (catCorrect, catTotal) = self.testCategory(new_dir, category)
             correct += catCorrect
             total += catTotal
         print("\n\nAccuracy is  %f%%  (%i test instances)" %
               ((float(correct) / total) * 100, total))
-            
-# change these to match your directory structure
-baseDirectory = "/Users/raz/Dropbox/guide/data/20news-bydate/"
-trainingDir = baseDirectory + "20news-bydate-train/"
-testDir = baseDirectory + "20news-bydate-test/"
 
 
-stoplistfile = "/Users/raz/Downloads/20news-bydate/stopwords0.txt"
-print("Reg stoplist 0 ")
-bT = BayesText(trainingDir, baseDirectory + "stopwords0.txt")
-print("Running Test ...")
-bT.test(testDir)
+if __name__ == '__main__':
+    baseDirectory = "/home/ubuntu14/jeffGithub/machine_learning/naiveBayes_unstructuredText/20news-bydate/"
+    trainingDir = baseDirectory + "20news-bydate-train/"
+    testDir = baseDirectory + "20news-bydate-test/"
 
-print("\n\nReg stoplist 25 ")
-bT = BayesText(trainingDir, baseDirectory + "stopwords25.txt")
-print("Running Test ...")
-bT.test(testDir)
+    stoplistfile = "/Users/raz/Downloads/20news-bydate/stopwords0.txt"
+    print("Reg stoplist 0 ")
+    bT = bayesText(trainingDir, baseDirectory + "stopwords0.txt")
+    print("Running Test ...")
+    bT.test(testDir)
 
-print("\n\nReg stoplist 174 ")
-bT = BayesText(trainingDir, baseDirectory + "stopwords174.txt")
-print("Running Test ...")
-bT.test(testDir)
+    '''
+    print("\n\nReg stoplist 25 ")
+    bT = bayesText(trainingDir, baseDirectory + "stopwords25.txt")
+    print("Running Test ...")
+    bT.test(testDir)
+
+    print("\n\nReg stoplist 174 ")
+    bT = bayesText(trainingDir, baseDirectory + "stopwords174.txt")
+    print("Running Test ...")
+    bT.test(testDir)
+    '''
