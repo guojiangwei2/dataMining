@@ -1,40 +1,13 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
 import math
 import random 
-
-
-"""
-Implementation of the K-means++ algorithm
-for the book A Programmer's Guide to Data Mining"
-http://www.guidetodatamining.com
-
-"""
-
-def getMedian(alist):
-    """get median of list"""
-    tmp = list(alist)
-    tmp.sort()
-    alen = len(tmp)
-    if (alen % 2) == 1:
-        return tmp[alen // 2]
-    else:
-        return (tmp[alen // 2] + tmp[(alen // 2) - 1]) / 2
-    
-
-def normalizeColumn(column):
-    """normalize the values of a column using Modified Standard Score
-    that is (each value - median) / (absolute standard deviation)"""
-    median = getMedian(column)
-    asd = sum([abs(x - median) for x in column]) / len(column)
-    result = [(x - median) / asd for x in column]
-    return result
+import numpy
 
 
 class kClusterer:
-    """ Implementation of kMeans Clustering
-    This clusterer assumes that the first column of the data is a label
-    not used in the clustering. The other columns contain numeric data
-    """
-    
+
     def __init__(self, filename, k):
         """ k is the number of clusters to make
         This init method:
@@ -44,59 +17,64 @@ class kClusterer:
            4. randomly selects the initial centroids
            5. assigns points to clusters associated with those centroids
         """
-        file = open(filename)
-        self.data = {}
         self.k = k
-        self.counter = 0
         self.iterationNumber = 0
-        # used to keep track of % of points that change cluster membership
-        # in an iteration
         self.pointsChanged = 0
-        # Sum of Squared Error
         self.sse = 0
-        #
-        # read data from file
-        #
-        lines = file.readlines()
-        file.close()
-        header = lines[0].split(',')
-        self.cols = len(header)
-        self.data = [[] for i in range(len(header))]
-        # we are storing the data by column.
-        # For example, self.data[0] is the data from column 0.
-        # self.data[0][10] is the column 0 value of item 10.
-        for line in lines[1:]:
-            cells = line.split(',')
-            toggle = 0
-            for cell in range(self.cols):
-                if toggle == 0:
-                   self.data[cell].append(cells[cell])
-                   toggle = 1
-                else:
-                    self.data[cell].append(float(cells[cell]))
-                    
-        self.datasize = len(self.data[1])
-        self.memberOf = [-1 for x in range(len(self.data[1]))]
-        #
-        # now normalize number columns
-        #
-        for i in range(1, self.cols):
-                self.data[i] = normalizeColumn(self.data[i])
 
-        # select random centroids from existing points
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+            header = lines[0].strip().split(',')
+            self.cols = len(header)
+            self.obvs = len(lines) - 1
+
+        rawData = [line.strip().split(',') for line in lines[1:]]
+        rawDataT = numpy.array(rawData).T.tolist()
+        self.data = [[], ] * self.cols
+        for i in range(self.cols):
+            if i == 0:
+                self.data[i] = rawDataT[i]
+            else:
+                rawVector = [int(x) for x in rawDataT[i]]
+                self.data[i] = self.normalizeColumn(rawVector)
+
+        # represent the cluster that each point belongs to
+        self.memberOf = [-1, ] * self.obvs
+
+        # select the random centroids
         random.seed()
         self.selectInitialCentroids()
         self.assignPointsToCluster()
 
 
-    def showData(self):
-        for i in range(len(self.data[0])):
-            print("%20s   %8.4f  %8.4f" %
-                (self.data[0][i], self.data[1][i], self.data[2][i]))
+    def getMedian(self, lst):
+        lst.sort()
+        length = len(lst)
+        is_odd = length % 2 == 1
+        idx = int((length - 1) / 2) if is_odd else int(length / 2 - 1)
+        median = lst[idx] if is_odd else sum(lst[idx: idx + 2]) / 2.0
+        return median
+
+
+    def normalizeColumn(self, vector):
+        median = self.getMedian(vector)
+        asd = sum([abs(x - median) for x in vector]) * 1.0 / len(vector)
+        result = [(x - median) * 1.0 / asd for x in vector]
+        return result
+
+
+    def eDistance(self, i, j):
+        # compute distance of point i and centroid j
+        # centroid j is point of data
+        sumSquares = 0
+        for k in range(1, self.cols):
+            sumSquares += (self.data[k][i] - self.data[k][j])**2
+        return math.sqrt(sumSquares)
+
 
     def distanceToClosestCentroid(self, point, centroidList):
-        result = self.eDistance(point, centroidList[0])
-        for centroid in centroidList[1:]:
+        result = 999999
+        for centroid in centroidList:
             distance = self.eDistance(point, centroid)
             if distance < result:
                 result = distance
@@ -104,53 +82,53 @@ class kClusterer:
 
 
     def selectInitialCentroids(self):
-        """implement the k-means++ method of selecting
-        the set of initial centroids"""
+        # implement the k-means++ method of selecting
+        # the set of initial centroids
         centroids = []
-        total = 0
-        # first step is to select a random first centroid
-        current = random.choice(range(len(self.data[0])))
+        current = random.choice(range(self.obvs))
         centroids.append(current)
-        # loop to select the rest of the centroids, one at a time
         for i in range(0, self.k - 1):
-            # for every point in the data find its distance to
-            # the closest centroid
             weights = [self.distanceToClosestCentroid(x, centroids) 
-                       for x in range(len(self.data[0]))]
+                       for x in range(self.obvs)]
             total = sum(weights)
-            # instead of raw distances, convert so sum of weight = 1
             weights = [x / total for x in weights]
-            #
-            # now roll virtual die
+
+            # the roulette wheel simulation
             num = random.random()
             total = 0
             x = -1
-            # the roulette wheel simulation
             while total < num:
                 x += 1
                 total += weights[x]
             centroids.append(x)
-        self.centroids = [[self.data[i][r]  for i in range(1, len(self.data))]
+
+        self.centroids = [[self.data[i][r]  for i in range(1, self.cols)]
                             for r in centroids]
-                
-            
-    
- 
+
+
     def updateCentroids(self):
-        """Using the points in the clusters, determine the centroid
-        (mean point) of each cluster"""
+        # Using the points in the clusters, determine the centroid
+        # (mean point) of each cluster
         members = [self.memberOf.count(i) for i in range(len(self.centroids))]
-        
+        # self.centroids is a list of vectors represent the centroid point
         self.centroids = [[sum([self.data[k][i]
-                            for i in range(len(self.data[0]))
+                            for i in range(self.obvs)
                             if self.memberOf[i] == centroid])/members[centroid]
-                           for k in range(1, len(self.data))]
-                          for centroid in range(len(self.centroids))] 
-            
-        
-    
+                           for k in range(1, self.cols)]
+                          for centroid in range(len(self.centroids))]
+
+
+    def euclideanDistance(self, i, j):
+        # compute distance of point i and centroid j
+        # centroid j is an independent vector
+        sumSquares = 0
+        for k in range(1, self.cols):
+            sumSquares += (self.data[k][i] - self.centroids[j][k-1])**2
+        return math.sqrt(sumSquares)
+
+
     def assignPointToCluster(self, i):
-        """ assign point to cluster based on distance from centroids"""
+        # assign point to cluster based on distance from centroids
         min = 999999
         clusterNum = -1
         for centroid in range(self.k):
@@ -158,66 +136,46 @@ class kClusterer:
             if dist < min:
                 min = dist
                 clusterNum = centroid
-        # here is where I will keep track of changing points
+        # keep track of changing points
         if clusterNum != self.memberOf[i]:
             self.pointsChanged += 1
         # add square of distance to running sum of squared error
         self.sse += min**2
         return clusterNum
 
+
     def assignPointsToCluster(self):
-        """ assign each data point to a cluster"""
+        # assign each data point to a cluster
         self.pointsChanged = 0
         self.sse = 0
-        self.memberOf = [self.assignPointToCluster(i)
-                         for i in range(len(self.data[1]))]
-        
+        self.memberOf = [self.assignPointToCluster(i) for i in range(self.obvs)]
 
-    def eDistance(self, i, j):
-        """ compute distance of point i from centroid j"""
-        sumSquares = 0
-        for k in range(1, self.cols):
-            sumSquares += (self.data[k][i] - self.data[k][j])**2
-        return math.sqrt(sumSquares)
-      
-    def euclideanDistance(self, i, j):
-        """ compute distance of point i from centroid j"""
-        sumSquares = 0
-        for k in range(1, self.cols):
-            sumSquares += (self.data[k][i] - self.centroids[j][k-1])**2
-        return math.sqrt(sumSquares)
 
     def kCluster(self):
-        """the method that actually performs the clustering
-        As you can see this method repeatedly
-            updates the centroids by computing the mean point of each cluster
-            re-assign the points to clusters based on these new centroids
-        until the number of points that change cluster membership is less than 1%.
-        """
+        # updates the centroids by computing the mean point of each cluster
+        # re-assign the points to clusters based on these new centroids
+        # until the number of points that change cluster membership is less than 1%.
         done = False
- 
         while not done:
             self.iterationNumber += 1
             self.updateCentroids()
             self.assignPointsToCluster()
-            #
-            # we are done if fewer than 1% of the points change clusters
-            #
             if float(self.pointsChanged) / len(self.memberOf) <  0.01:
                 done = True
+
         print("Final SSE: %f" % self.sse)
 
+
     def showMembers(self):
-        """Display the results"""
+        # display the cluster res
         for centroid in range(len(self.centroids)):
              print ("\n\nClass %i\n========" % centroid)
-             for name in [self.data[0][i]  for i in range(len(self.data[0]))
+             for name in [self.data[0][i] for i in range(self.obvs)
                           if self.memberOf[i] == centroid]:
-                 print (name)
-        
-##
-## RUN THE K-MEANS CLUSTERER ON THE DOG DATA USING K = 3
-###
-km = kClusterer('../../data/dogs.csv', 3)
-km.kCluster()
-km.showMembers()
+                 print(name)
+
+
+if __name__ == '__main__':
+    km = kClusterer('/home/ubuntu14/jeffGithub/machine_learning/clustering/dogs.csv', 3)
+    km.kCluster()
+    km.showMembers()
