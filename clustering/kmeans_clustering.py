@@ -48,11 +48,11 @@ class kClusterer:
 
 
     def getMedian(self, lst):
-        lst.sort()
+        sorted_lst = sorted(lst)
         length = len(lst)
         is_odd = length % 2 == 1
         idx = int((length - 1) / 2) if is_odd else int(length / 2 - 1)
-        median = lst[idx] if is_odd else sum(lst[idx: idx + 2]) / 2.0
+        median = sorted_lst[idx] if is_odd else sum(sorted_lst[idx: idx + 2]) / 2.0
         return median
 
 
