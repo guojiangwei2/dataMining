@@ -130,3 +130,7 @@
  * k-means is simple and has fast execution time. it's a great choice in general and also a good choice as first step to explore your data.
  * k-means doesn't handle outliers well, we can remedy this by identifying and remove the outliers.
  * the obvious use of hierarchical-clustering is to create a taxonomy or hierarchical from our data. it offers more info. than flat set of clusters. but it's not efficient in execution speed and memory requirement.
+
+--- --- ---
+### connect me
+any question, you can mail me by `xmuguojw@foxmail.com`
