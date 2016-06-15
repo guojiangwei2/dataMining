@@ -157,7 +157,9 @@ def tenfold(dataPrefix, stoplist):
 
 
 if __name__ == '__main__':
-    prefixPath = "/home/ubuntu14/jeffGithub/machine_learning/naiveBayes_unstructuredText/review_polarity_buckets/"
+    import os
+    curr_path = os.getcwd()
+    prefixPath = curr_path + "/review_polarity_buckets/"
     theDir = prefixPath + "/txt_sentoken/"
     stoplistfile = prefixPath + "stopwords25.txt"
     tenfold(theDir, stoplistfile)

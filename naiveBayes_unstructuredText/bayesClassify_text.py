@@ -127,7 +127,9 @@ class bayesText:
 
 
 if __name__ == '__main__':
-    baseDirectory = "/home/ubuntu14/jeffGithub/machine_learning/naiveBayes_unstructuredText/20news-bydate/"
+    import os
+    curr_path = os.getcwd()
+    baseDirectory = curr_path + "/20news-bydate/"
     trainingDir = baseDirectory + "20news-bydate-train/"
     testDir = baseDirectory + "20news-bydate-test/"
 
