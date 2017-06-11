@@ -131,6 +131,10 @@
  * k-means doesn't handle outliers well, we can remedy this by identifying and remove the outliers.
  * the obvious use of hierarchical-clustering is to create a taxonomy or hierarchical from our data. it offers more info. than flat set of clusters. but it's not efficient in execution speed and memory requirement.
 
+### NLP
+* viterbi for pos tagging, implementaion of pseudo code for [arronj1335](https://gist.github.com/aaronj1335/9650261)
+
+
 --- --- ---
 ### connect me
 any question, you can mail me by `xmuguojw@foxmail.com`
